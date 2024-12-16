@@ -1,3 +1,15 @@
+variable "auth0_audience" {
+  type = string
+}
+
+variable "auth0_token_issuer" {
+  type = string
+}
+
+variable "auth0_jwks_uri" {
+  type = string
+}
+
 data "archive_file" "authorizer_lambda_archive" {
   type        = "zip"
   source_dir  = "../src/authorizer_lambda"
@@ -23,6 +35,16 @@ resource "aws_lambda_function" "auth0_authorizer_lambda" {
   role          = aws_iam_role.lambda_execution_iam_role.arn
   handler       = "index.handler"
   runtime       = "nodejs20.x"
+
+  source_code_hash = data.archive_file.authorizer_lambda_archive.output_base64sha256
+
+  environment {
+    variables = {
+      JWKS_URI = var.auth0_jwks_uri
+      ISSUER   = var.auth0_token_issuer
+      AUDIENCE = var.auth0_audience
+    }
+  }
 }
 
 resource "aws_iam_role" "gateway_invocation_role" {
