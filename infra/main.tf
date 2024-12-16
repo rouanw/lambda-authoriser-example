@@ -26,6 +26,11 @@ resource "aws_iam_role" "lambda_execution_iam_role" {
   name               = "lambda_execution_iam_role"
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  role       = aws_iam_role.lambda_execution_iam_role.name
+}
+
 resource "aws_lambda_function" "example_lambda" {
   filename      = "example_lambda.zip"
   function_name = "example_lambda"
@@ -58,7 +63,8 @@ resource "aws_api_gateway_method" "example_api_method" {
   rest_api_id   = aws_api_gateway_rest_api.example_rest_api.id
   resource_id   = aws_api_gateway_resource.example_api_gateway_resource.id
   http_method   = "GET"
-  authorization = "NONE"
+  authorization = "CUSTOM"
+  authorizer_id = aws_api_gateway_authorizer.auth0_authorizer.id
 }
 
 resource "aws_api_gateway_integration" "example_api_gateway_integration" {
