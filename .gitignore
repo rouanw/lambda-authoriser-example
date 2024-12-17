@@ -39,3 +39,4 @@ terraform.rc
 volume/
 *.zip
 tmp/
+**/node_modules/
